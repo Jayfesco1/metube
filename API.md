@@ -13,7 +13,7 @@ Returns the list of configured `yt-dlp` option presets.
 - **Response**: `{"presets": ["preset1", "preset2", ...]}`
 
 ### `GET /history`
-Returns the history of downloads.
+Returns the history of downloads from disk. **Note**: This endpoint returns persisted data and does *not* include real-time fields like `percent`, `speed`, or `eta`. Use Socket.IO for real-time progress.
 - **Response**:
   ```json
   {
@@ -129,6 +129,30 @@ Manually triggers a check for new items in subscriptions.
   }
   ```
 - **Response**: `{"status": "ok"}`
+
+---
+
+## Real-time Updates (Socket.IO)
+
+MeTube uses Socket.IO for real-time updates. The websocket endpoint is at `{URL_PREFIX}socket.io/`.
+
+### Connection
+Upon connection, the server emits several events to synchronize the client state:
+- `all`: Returns the current in-memory state of the queue. Format: `[[ActiveAndPendingDownloads], [CompletedDownloads]]`.
+- `subscriptions_all`: Returns all subscriptions.
+- `configuration`: Returns the safe frontend configuration.
+- `custom_dirs`: Returns available custom directories (if enabled).
+- `ytdl_options_changed`: Emitted if the `YTDL_OPTIONS_FILE` is modified.
+
+### Events
+- `added`: A new download was added.
+- `updated`: A download's progress or status changed (includes `percent`, `speed`, `eta`).
+- `completed`: A download finished successfully.
+- `canceled`: A download was canceled.
+- `cleared`: A completed download was removed from the list.
+- `subscription_added`: A new subscription was created.
+- `subscription_updated`: A subscription was updated or its check finished.
+- `subscription_removed`: A subscription was deleted.
 
 ---
 
