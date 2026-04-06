@@ -156,6 +156,22 @@ Upon connection, the server emits several events to synchronize the client state
 
 ---
 
+## Downloading Files
+
+MeTube serves downloaded files as static assets. The base URLs for these files are provided in the `configuration` Socket.IO event and via the `PUBLIC_HOST_URL` and `PUBLIC_HOST_AUDIO_URL` settings.
+
+### Base URLs
+- **Video/Other**: `{URL_PREFIX}download/` (Default)
+- **Audio**: `{URL_PREFIX}audio_download/` (Default)
+
+### Usage
+To download a completed file, append the `filename` from a `DownloadObject` to the appropriate base URL:
+`GET {URL_PREFIX}download/{filename}`
+
+Example: if a download has `filename: "My Video.mp4"`, the download link is `{URL_PREFIX}download/My%20Video.mp4`.
+
+---
+
 ## Cookie Management
 
 ### `POST /upload-cookies`
