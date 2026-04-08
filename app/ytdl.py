@@ -971,7 +971,7 @@ class DownloadQueue:
             key = entry.get('webpage_url') or entry['url']
             if key in self._canceled_urls:
                 log.info(f'Skipping canceled URL: {entry.get("title") or key}')
-                return {'status': 'ok'}
+                return {'status': 'ok', 'id': key}
             if not self.queue.exists(key):
                 dl = DownloadInfo(
                     id=entry['id'],
@@ -994,7 +994,7 @@ class DownloadQueue:
                     ytdl_options_overrides=ytdl_options_overrides,
                 )
                 await self.__add_download(dl, auto_start)
-            return {'status': 'ok'}
+            return {'status': 'ok', 'id': key}
         return {'status': 'error', 'msg': f'Unsupported resource "{etype}"'}
 
     async def add(
