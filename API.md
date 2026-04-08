@@ -67,7 +67,7 @@ Cancels active downloads or clears completed downloads from the list.
     "where": "queue" | "done"
   }
   ```
-- **Response**: `{"status": "ok"}`
+- **Response**: `{"status": "ok", "ids": ["url1", "url2", ...]}`
 
 ### `POST /start`
 Starts downloads that were added with `auto_start: false` (pending).
@@ -77,7 +77,7 @@ Starts downloads that were added with `auto_start: false` (pending).
     "ids": ["url1", "url2", ...]
   }
   ```
-- **Response**: `{"status": "ok"}`
+- **Response**: `{"status": "ok", "ids": ["url1", "url2", ...]}`
 
 ---
 

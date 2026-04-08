@@ -1112,7 +1112,7 @@ class DownloadQueue:
             self.queue.put(dl)
             self.pending.delete(id)
             asyncio.create_task(self.__start_download(dl))
-        return {'status': 'ok'}
+        return {'status': 'ok', 'ids': ids}
 
     async def cancel(self, ids):
         for id in ids:
@@ -1130,7 +1130,7 @@ class DownloadQueue:
             else:
                 self.queue.delete(id)
                 await self.notifier.canceled(id)
-        return {'status': 'ok'}
+        return {'status': 'ok', 'ids': ids}
 
     async def clear(self, ids):
         for id in ids:
@@ -1146,7 +1146,7 @@ class DownloadQueue:
                     log.warning(f'deleting file for download {id} failed with error message {e!r}')
             self.done.delete(id)
             await self.notifier.cleared(id)
-        return {'status': 'ok'}
+        return {'status': 'ok', 'ids': ids}
 
     def get(self):
         return (list((k, v.info) for k, v in self.queue.items()) +
