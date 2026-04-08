@@ -52,7 +52,7 @@ Adds a new download to the queue.
     "ytdl_options_overrides": {}
   }
   ```
-- **Response**: `{"status": "ok", "id": "url_or_id"}` or `{"status": "error", "msg": "..."}`
+- **Response**: `{"status": "ok", "id": "url_or_id"}` or `{"status": "error", "msg": "..."}`. The `id` is typically the URL or the resource ID.
 
 ### `POST /cancel-add`
 Cancels a long-running playlist or channel expansion operation triggered by `/add`.

@@ -929,7 +929,11 @@ class DownloadQueue:
             for index, etr in enumerate(entries, start=1):
                 if _add_gen is not None and self._add_generation != _add_gen:
                     log.info(f'Playlist add canceled after processing {len(already)} entries')
-                    return {'status': 'ok', 'msg': f'Canceled - added {len(already)} items before cancel'}
+                    return {
+                        'status': 'ok',
+                        'id': entry.get('webpage_url') or entry.get('url') or entry.get('id'),
+                        'msg': f'Canceled - added {len(already)} items before cancel',
+                    }
                 etr["_type"] = "video"
                 etr[etype] = entry.get("id") or entry.get("channel_id") or entry.get("channel")
                 etr[f"{etype}_index"] = '{{0:0{0:d}d}}'.format(index_digits).format(index)
@@ -965,7 +969,7 @@ class DownloadQueue:
                 )
             if any(res['status'] == 'error' for res in results):
                 return {'status': 'error', 'msg': ', '.join(res['msg'] for res in results if res['status'] == 'error' and 'msg' in res)}
-            return {'status': 'ok'}
+            return {'status': 'ok', 'id': entry.get('webpage_url') or entry.get('url') or entry.get('id')}
         elif etype == 'video' or (etype.startswith('url') and 'id' in entry and 'title' in entry):
             log.debug('Processing as a video')
             key = entry.get('webpage_url') or entry['url']
@@ -1030,7 +1034,7 @@ class DownloadQueue:
         already = set() if already is None else already
         if url in already:
             log.info('recursion detected, skipping')
-            return {'status': 'ok'}
+            return {'status': 'ok', 'id': url}
         else:
             already.add(url)
         try:
