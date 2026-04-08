@@ -929,7 +929,11 @@ class DownloadQueue:
             for index, etr in enumerate(entries, start=1):
                 if _add_gen is not None and self._add_generation != _add_gen:
                     log.info(f'Playlist add canceled after processing {len(already)} entries')
-                    return {'status': 'ok', 'msg': f'Canceled - added {len(already)} items before cancel'}
+                    return {
+                        'status': 'ok',
+                        'id': entry.get('webpage_url') or entry.get('url') or entry.get('id'),
+                        'msg': f'Canceled - added {len(already)} items before cancel',
+                    }
                 etr["_type"] = "video"
                 etr[etype] = entry.get("id") or entry.get("channel_id") or entry.get("channel")
                 etr[f"{etype}_index"] = '{{0:0{0:d}d}}'.format(index_digits).format(index)
@@ -965,13 +969,13 @@ class DownloadQueue:
                 )
             if any(res['status'] == 'error' for res in results):
                 return {'status': 'error', 'msg': ', '.join(res['msg'] for res in results if res['status'] == 'error' and 'msg' in res)}
-            return {'status': 'ok'}
+            return {'status': 'ok', 'id': entry.get('webpage_url') or entry.get('url') or entry.get('id')}
         elif etype == 'video' or (etype.startswith('url') and 'id' in entry and 'title' in entry):
             log.debug('Processing as a video')
             key = entry.get('webpage_url') or entry['url']
             if key in self._canceled_urls:
                 log.info(f'Skipping canceled URL: {entry.get("title") or key}')
-                return {'status': 'ok'}
+                return {'status': 'ok', 'id': key}
             if not self.queue.exists(key):
                 dl = DownloadInfo(
                     id=entry['id'],
@@ -994,7 +998,7 @@ class DownloadQueue:
                     ytdl_options_overrides=ytdl_options_overrides,
                 )
                 await self.__add_download(dl, auto_start)
-            return {'status': 'ok'}
+            return {'status': 'ok', 'id': key}
         return {'status': 'error', 'msg': f'Unsupported resource "{etype}"'}
 
     async def add(
@@ -1030,7 +1034,7 @@ class DownloadQueue:
         already = set() if already is None else already
         if url in already:
             log.info('recursion detected, skipping')
-            return {'status': 'ok'}
+            return {'status': 'ok', 'id': url}
         else:
             already.add(url)
         try:
@@ -1108,7 +1112,7 @@ class DownloadQueue:
             self.queue.put(dl)
             self.pending.delete(id)
             asyncio.create_task(self.__start_download(dl))
-        return {'status': 'ok'}
+        return {'status': 'ok', 'ids': ids}
 
     async def cancel(self, ids):
         for id in ids:
@@ -1126,7 +1130,7 @@ class DownloadQueue:
             else:
                 self.queue.delete(id)
                 await self.notifier.canceled(id)
-        return {'status': 'ok'}
+        return {'status': 'ok', 'ids': ids}
 
     async def clear(self, ids):
         for id in ids:
@@ -1142,7 +1146,7 @@ class DownloadQueue:
                     log.warning(f'deleting file for download {id} failed with error message {e!r}')
             self.done.delete(id)
             await self.notifier.cleared(id)
-        return {'status': 'ok'}
+        return {'status': 'ok', 'ids': ids}
 
     def get(self):
         return (list((k, v.info) for k, v in self.queue.items()) +
