@@ -2,6 +2,10 @@
 
 MeTube provides a REST API and a Socket.IO interface for managing downloads and subscriptions.
 
+## Authentication
+
+MeTube does **not** have built-in authentication or API keys. If your instance is exposed to the internet, it is highly recommended to run it behind a reverse proxy (e.g., Nginx, Apache, Caddy) and implement authentication there (such as Basic Auth or a solution like Authelia).
+
 ## REST API
 
 All endpoints are relative to the `URL_PREFIX` configured in your environment (default is `/`).
