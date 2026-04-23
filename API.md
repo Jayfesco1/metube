@@ -2,9 +2,22 @@
 
 MeTube provides a REST API and a Socket.IO interface for managing downloads and subscriptions.
 
-## Authentication
+## Authentication & Security
 
-MeTube does **not** have built-in authentication or API keys. If your instance is exposed to the internet, it is highly recommended to run it behind a reverse proxy (e.g., Nginx, Apache, Caddy) and implement authentication there (such as Basic Auth or a solution like Authelia).
+### MeTube's Built-in Security Model
+MeTube is designed as a **single-user, private tool**. It does **not** have built-in authentication, user accounts, or API keys in its core codebase.
+
+- **Access Tokens / Sign-in:** If you encounter a login screen or a dashboard to manage "Access Tokens" (as seen in some screenshots), this is being provided by an **external authentication layer** or a **reverse proxy manager** (like Nginx Proxy Manager, Authelia, Cloudflare Access, or a NAS dashboard).
+- **Cookies:** The "Cookies" feature in MeTube is exclusively for **yt-dlp cookies**. These allow MeTube to download restricted/private content from external sites (like YouTube) by providing your *external site* session data. They are **not** used to authenticate you into MeTube itself.
+
+### How to Authenticate Requests
+If you are using a tool (like a Telegram bot) that requires an API key or token to talk to your MeTube instance, you must handle this at your **reverse proxy**:
+
+1.  **Header-based Auth:** Configure your proxy (e.g., Nginx) to check for a specific header (like `X-Api-Key` or `Authorization: Bearer <token>`).
+2.  **Passing Requests:** Once the proxy validates the token, it forwards the request to MeTube.
+3.  **Telegram Bots:** Most community Telegram bots for MeTube are configured to send their requests to your proxy URL with the necessary headers.
+
+If your instance is exposed to the internet, it is **highly recommended** to implement one of these external security solutions.
 
 ## REST API
 
